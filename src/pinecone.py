@@ -14,7 +14,7 @@ def upload(index: pinecone.Index, points: List[Dict], namespace: str) -> int:
 
     try:
         for i in range(0, len(points), BATCH_SIZE):
-            batch = points[i:i + BATCH_SIZE]
+            batch = points[i : i + BATCH_SIZE]
             response = index.upsert(vectors=batch, namespace=namespace)
             total_upserted += response.get("upserted_count", 0)
 

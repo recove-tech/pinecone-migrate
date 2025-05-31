@@ -21,7 +21,7 @@ def main():
     global bq_client, pc_index_items, pc_index_vinted
 
     bq_client = src.bigquery.init_client(secrets["GCP_CREDENTIALS"])
-    
+
     pc_client = pinecone.Pinecone(api_key=secrets.get("PINECONE_API_KEY"))
     pc_index_items = pc_client.Index(src.enums.PINECONE_INDEX_ITEMS)
     pc_index_vinted = pc_client.Index(src.enums.PINECONE_INDEX_VINTED)
@@ -33,15 +33,18 @@ def main():
     if loader.total_rows == 0:
         return
 
+    print(f"Total rows: {loader.total_rows}")
     batch_ix, n, n_success = 0, 0, 0
     current_batch = []
 
     for row in loader:
         batch_ix += 1
         current_batch.append(row)
-        
+
         if len(current_batch) == BATCH_SIZE or batch_ix == loader.total_rows:
-            mapping, point_ids = src.processing.create_category_type_mapping(current_batch)
+            mapping, point_ids = src.processing.create_category_type_mapping(
+                current_batch
+            )
             points = src.pinecone.fetch_points(pc_index_items, point_ids)
             points, rows = src.processing.prepare_points(points, mapping)
             n += len(rows)
