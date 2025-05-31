@@ -1,0 +1,23 @@
+name: Scheduled Run
+
+on:
+  schedule:
+    - cron: '30 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-migration:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build and run Docker container
+      env:
+        SECRETS_JSON: ${{ secrets.SECRETS_JSON }}
+      run: |
+        docker build -t pinecone-migrate .
+        docker run --env SECRETS_JSON="$SECRETS_JSON" pinecone-migrate 
